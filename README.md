@@ -1,2 +1,535 @@
 # -8
 סידור משמרת
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>סידור עבודה</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a1a1a;direction:rtl;padding:1rem}
+.app{max-width:860px;margin:0 auto}
+h1{font-size:18px;font-weight:500;text-align:center;margin-bottom:1.25rem}
+.tabs{display:flex;gap:6px;margin-bottom:1rem}
+.tab{flex:1;padding:8px;border:0.5px solid #ccc;border-radius:8px;font-size:13px;cursor:pointer;background:#fff;color:#666;text-align:center}
+.tab.active{background:#e8f0fe;color:#1a56db;border-color:#a4c2f4;font-weight:500}
+.card{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1rem;margin-bottom:0.85rem}
+.section-title{font-size:12px;font-weight:500;color:#666;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em}
+.workers-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center;min-height:24px}
+.worker-input{display:flex;gap:6px;align-items:center}
+.worker-input input{width:110px;font-size:13px;padding:5px 8px;border:0.5px solid #ccc;border-radius:6px;outline:none}
+.tag{border-radius:999px;padding:3px 8px 3px 6px;font-size:13px;display:flex;align-items:center;gap:4px;background:#f0f0ee;border:0.5px solid #ccc;color:#1a1a1a}
+.tag.late-tag{background:#fff8e1;border-color:#f9a825;color:#6d4c00}
+.tag.until19-tag{background:#fce4ec;border-color:#e91e63;color:#880e4f}
+.tag.until21-tag{background:#e8f5e9;border-color:#43a047;color:#1b5e20}
+.tag button{background:none;border:none;cursor:pointer;color:#888;font-size:12px;padding:0;line-height:1}
+button{padding:5px 14px;border:0.5px solid #ccc;border-radius:6px;font-size:13px;cursor:pointer;background:#fff;color:#333;font-family:inherit}
+button:hover{background:#f5f5f3}
+.opts-row{display:flex;gap:8px;flex-wrap:wrap}
+.tog{padding:5px 14px;border:0.5px solid #ccc;border-radius:6px;font-size:13px;cursor:pointer;background:#fff;color:#666}
+.tog.on{background:#e8f0fe;color:#1a56db;border-color:#a4c2f4}
+.divider{border:none;border-top:0.5px solid #e0e0e0;margin:10px 0}
+.warn{color:#c0392b;font-size:12px;margin-top:4px}
+.hidden{display:none}
+.panel{display:none}
+.panel.active{display:block}
+.info-box{border-radius:8px;padding:7px 12px;margin-top:6px;font-size:12px}
+.info-box.yellow{background:#fff8e1;border:0.5px solid #f9a825;color:#6d4c00}
+.info-box.pink{background:#fce4ec;border:0.5px solid #e91e63;color:#880e4f}
+.info-box.green{background:#e8f5e9;border:0.5px solid #43a047;color:#1b5e20}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{border:0.5px solid #e0e0e0;text-align:center;vertical-align:middle}
+th{background:#f5f5f3;font-size:11px;font-weight:500;color:#666;padding:5px 4px;white-space:nowrap}
+td.row-label{background:#f5f5f3;font-size:12px;font-weight:500;color:#1a1a1a;padding:5px 8px;white-space:nowrap;text-align:right}
+td.cell{padding:0;min-width:80px}
+.cell-select{width:100%;border:none;background:transparent;font-size:13px;font-weight:500;color:#1a1a1a;padding:7px 4px;text-align:center;cursor:pointer;appearance:none;-webkit-appearance:none}
+.cell-select.repeat{background:#fdecea;color:#c0392b}
+td.cell-closed{background:#f5f5f3;min-width:80px;padding:7px 4px;font-size:12px;color:#999;text-align:center}
+.scan-blocks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.scan-block{border:0.5px solid #e0e0e0;border-radius:8px;overflow:hidden}
+.scan-block-header{background:#f5f5f3;text-align:center;padding:6px 4px;font-size:11px;font-weight:500;color:#1a1a1a;border-bottom:0.5px solid #e0e0e0}
+.scan-header-row{display:flex;align-items:center;background:#f5f5f3;border-bottom:0.5px solid #e0e0e0}
+.scan-hdr-floor{width:56px;flex-shrink:0;font-size:11px;font-weight:500;color:#666;text-align:center;padding:4px 2px;border-left:0.5px solid #e0e0e0}
+.scan-hdr-worker{flex:1;font-size:11px;font-weight:500;color:#666;text-align:center;padding:4px 2px;border-left:0.5px solid #e0e0e0}
+.scan-hdr-rm{width:22px;flex-shrink:0}
+.scan-row{display:flex;align-items:center;border-top:0.5px solid #e0e0e0}
+.sc-floor-cell{width:56px;flex-shrink:0;background:#f5f5f3;border-left:0.5px solid #e0e0e0;padding:0;overflow:hidden}
+.sc-floor-cell span{display:block;width:56px;font-size:12px;font-weight:500;color:#1a1a1a;text-align:center;padding:6px 2px;white-space:nowrap;overflow:hidden;cursor:pointer}
+.sc-floor-cell input{display:none;width:56px;border:none;background:#fff;font-size:12px;font-weight:500;color:#1a1a1a;text-align:center;padding:6px 2px;outline:1px solid #1a56db}
+.sc-worker-cell{flex:1;border-left:0.5px solid #e0e0e0}
+.sc-select{width:100%;border:none;background:transparent;font-size:13px;font-weight:500;color:#1a1a1a;padding:6px 3px;text-align:center;cursor:pointer;appearance:none;-webkit-appearance:none}
+.sc-select.repeat{background:#fdecea;color:#c0392b}
+.sc-rm-cell{width:22px;flex-shrink:0;border-left:0.5px solid #e0e0e0;text-align:center}
+.sc-rm-btn{border:none;background:transparent;cursor:pointer;color:#999;font-size:13px;padding:4px 3px;width:100%}
+.scan-add-row{border-top:0.5px dashed #e0e0e0}
+.scan-add-btn{width:100%;border:none;background:transparent;font-size:11px;color:#999;padding:5px;cursor:pointer}
+.e28-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#f5f5f3;border-radius:8px;margin-top:8px;flex-wrap:wrap}
+.e28-row span{font-size:13px;font-weight:500}
+.e28-btn{padding:5px 16px;border:0.5px solid #ccc;border-radius:6px;font-size:13px;cursor:pointer;background:#fff;color:#666}
+.e28-btn.sel{border-color:#888;color:#1a1a1a;font-weight:500;box-shadow:0 0 0 1.5px #ccc}
+.generate-btn{width:100%;padding:10px;font-size:14px;margin-bottom:0.5rem;border-radius:8px}
+.generate-btn.primary{background:#1a56db;color:#fff;border-color:#1a56db}
+.summary{font-size:13px;color:#666;padding:8px 10px;background:#f5f5f3;border-radius:8px;line-height:1.8;margin-top:0.5rem}
+#until21-section{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>📋 סידור עבודה</h1>
+
+  <div class="card">
+    <div class="section-title">עובדים רגילים — עמדות + סריקות (עד 5)</div>
+    <div class="workers-row" id="workerTags"></div>
+    <div class="worker-input">
+      <input type="text" id="wInput" placeholder="שם עובד..." maxlength="12"/>
+      <button onclick="addWorker()">+ הוסף</button>
+    </div>
+    <div class="warn hidden" id="warnTxt"></div>
+    <hr class="divider"/>
+
+    <div class="section-title">⏰ מאבטח מאוחר — 09:00 עד 18:00</div>
+    <div class="workers-row" id="lateTags"></div>
+    <div class="worker-input">
+      <input type="text" id="lInput" placeholder="שם..." maxlength="12"/>
+      <button onclick="addLate()">+ הוסף</button>
+    </div>
+    <div class="info-box yellow">בוקר: נכנס מ-09:00 · צהריים: רק סבב 15:00–17:00 (יוצא ב-18:00)</div>
+    <hr class="divider"/>
+
+    <div class="section-title">🌅 מאבטח 7-19 — עובד 07:00 עד 19:00</div>
+    <div class="workers-row" id="until19Tags"></div>
+    <div class="worker-input">
+      <input type="text" id="u19Input" placeholder="שם..." maxlength="12"/>
+      <button onclick="addUntil19()">+ הוסף</button>
+    </div>
+    <div class="info-box pink">בוקר: רלוונטי לכל השעות · צהריים: רק 15:00–17:00 ו-17:00–19:00 · לא אחרי 19:00</div>
+    <hr class="divider"/>
+
+    <div id="until21-section">
+      <div class="section-title">🌙 מאבטח עד 21:00 (צהריים בלבד)</div>
+      <div class="workers-row" id="until21Tags"></div>
+      <div class="worker-input">
+        <input type="text" id="u21Input" placeholder="שם..." maxlength="12"/>
+        <button onclick="addUntil21()">+ הוסף</button>
+      </div>
+      <div class="info-box green">עובד 15:00–21:00 · זמין לכל העמדות והסריקות בשעות אלו</div>
+      <hr class="divider"/>
+    </div>
+
+    <div class="section-title">אחמש — סריקה ראשונה בלבד (07:00–09:00)</div>
+    <div class="workers-row" id="ahmadTags"></div>
+    <div class="worker-input">
+      <input type="text" id="aInput" placeholder="שם אחמש..." maxlength="12"/>
+      <button onclick="addAhmad()">+ הוסף</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">הגדרות יומיות</div>
+    <div class="opts-row">
+      <button class="tog" id="tog-escort" onclick="toggleOpt('escort')">ליווי</button>
+    </div>
+    <div class="e28-row">
+      <span>E-28 נסגר ב:</span>
+      <button class="e28-btn sel" id="e28-18" onclick="setE28(18)">18:00</button>
+      <button class="e28-btn" id="e28-21" onclick="setE28(21)">21:00</button>
+      <button class="e28-btn" id="e28-open" onclick="setE28(0)">פתוח כל היום</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('morning')">☀️ בוקר 07:00–15:00</button>
+    <button class="tab" onclick="switchTab('afternoon')">🌆 צהריים 15:00–23:00</button>
+  </div>
+
+  <div id="panel-morning" class="panel active">
+    <div class="card">
+      <div class="section-title">עמדות קבועות — בוקר</div>
+      <div class="tbl-wrap" id="st-morning"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">סריקות — בוקר</div>
+      <div class="scan-blocks" id="scans-morning"></div>
+    </div>
+  </div>
+
+  <div id="panel-afternoon" class="panel">
+    <div class="card">
+      <div class="section-title">עמדות קבועות — צהריים</div>
+      <div class="tbl-wrap" id="st-afternoon"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">סריקות — צהריים</div>
+      <div class="scan-blocks" id="scans-afternoon"></div>
+    </div>
+  </div>
+
+  <button class="generate-btn primary" onclick="autoFill()">✨ חלק אוטומטית</button>
+  <button class="generate-btn" onclick="clearAll()">↺ נקה שיבוצים</button>
+  <div class="summary hidden" id="summary"></div>
+</div>
+
+<script>
+let workers=[],lateWorkers=[],until19=[],until21=[],ahmads=[];
+let opts={escort:false};
+let e28Close=18;
+let curTab='morning';
+
+let scanFloors={
+  morning:[['19-20','21-22','23-25','26-28'],['19-20','21-22','23-25','26-28'],['19-20','21-22','23-25','26-28']],
+  afternoon:[['19-20','21-22','23-25','26-28'],['19-20','21-22','23-25','26-28'],['19-20','21-22','23-25','26-28']]
+};
+let scanAssign={morning:[[],[],[]],afternoon:[[],[],[]]};
+
+const MST=['07:00–09:00','09:00–11:00','11:00–13:00','13:00–15:00'];
+const AST=['15:00–17:00','17:00–19:00','19:00–21:00','21:00–23:00'];
+const MSC=['07:00–09:00','09:00–12:00','12:00–15:00'];
+const ASC=['15:00–17:00','17:00–20:00','20:00–23:00'];
+const FIXED=['קבלה','תחנות 19-23','עליונות 24-28','E-28'];
+
+function getStations(){const s=[...FIXED];if(opts.escort)s.push('ליווי');return s;}
+function allPeople(){return[...workers,...lateWorkers,...until19,...until21,...ahmads];}
+function safeId(s){return s.replace(/[^a-z0-9]/gi,'_');}
+function slotStart(slot){return parseInt(slot.split(':')[0]);}
+
+function isE28Closed(row,slot,shift){
+  if(row!=='E-28') return false;
+  if(shift==='morning'&&slot==='07:00–09:00') return true;
+  if(e28Close===0) return false;
+  return slotStart(slot)>=e28Close;
+}
+
+// עמדות: זמינות לפי שעה
+// מאוחר (lateWorkers): בוקר מ-09, צהריים רק 15-17 (כי יוצא ב-18)
+// 7-7 (until19): צהריים רק 15-17 ו-17-19
+// עד21 (until21): צהריים רק עד 21
+function availableForStSlot(slot,shift){
+  const h=slotStart(slot);
+  if(shift==='morning'){
+    if(h<9) return [...workers,...until19]; // 7-19 רלוונטי מ-07
+    return [...workers,...lateWorkers,...until19]; // מ-09 גם מאוחר
+  }
+  // צהריים
+  let avail=[...workers];
+  if(h<18) avail=[...avail,...lateWorkers]; // מאוחר יוצא ב-18 → רק 15-17
+  if(h<19) avail=[...avail,...until19];
+  if(h<21) avail=[...avail,...until21];
+  return avail;
+}
+
+// סריקות
+// בוקר סבב 0 (07-09): רגילים + אחמש
+// בוקר סבב 1,2 (09-12, 12-15): רגילים + מאוחרים
+// צהריים סבב 0 (15-17): רגילים + מאוחרים + 7-7 + עד21
+// צהריים סבב 1 (17-20): רגילים + 7-7 (עד 19 בלבד, אבל סבב עד 20 — לא כולל)  + עד21
+//   → 7-7 יוצא ב-19, הסבב 17-20 חוצה — לא נכניס אותו לסבב זה
+// צהריים סבב 2 (20-23): רגילים בלבד
+function availableForScan(shift,si){
+  if(shift==='morning'){
+    if(si===0) return [...workers,...until19,...ahmads]; // 07-09: רגילים + 7-19 + אחמש
+    return [...workers,...lateWorkers,...until19];        // 09-12, 12-15: רגילים + מאוחר + 7-19
+  }
+  if(si===0) return [...workers,...lateWorkers,...until19,...until21]; // 15-17
+  if(si===1) return [...workers,...until19,...until21];               // 17-20: עד19 ועד21 פעילים (יכולים לסרוק לפני שיוצאים)
+  return [...workers,...ahmads];                                        // 20-23: רגילים + אחמש
+}
+
+['wInput','lInput','u19Input','u21Input','aInput'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown',e=>{
+    if(e.key==='Enter')({wInput:addWorker,lInput:addLate,u19Input:addUntil19,u21Input:addUntil21,aInput:addAhmad})[id]();
+  });
+});
+
+function addWorker(){
+  const inp=document.getElementById('wInput'),n=inp.value.trim(),w=document.getElementById('warnTxt');
+  if(!n)return;
+  if(workers.length>=5){w.textContent='מקסימום 5';w.classList.remove('hidden');return;}
+  if(allPeople().includes(n)){w.textContent='השם קיים';w.classList.remove('hidden');inp.value='';return;}
+  w.classList.add('hidden');workers.push(n);inp.value='';renderAll();
+}
+function addLate(){
+  const inp=document.getElementById('lInput'),n=inp.value.trim();
+  if(!n||allPeople().includes(n))return;
+  lateWorkers.push(n);inp.value='';renderAll();
+}
+function addUntil19(){
+  const inp=document.getElementById('u19Input'),n=inp.value.trim();
+  if(!n||allPeople().includes(n))return;
+  until19.push(n);inp.value='';renderAll();
+}
+function addUntil21(){
+  const inp=document.getElementById('u21Input'),n=inp.value.trim();
+  if(!n||allPeople().includes(n))return;
+  until21.push(n);inp.value='';renderAll();
+}
+function addAhmad(){
+  const inp=document.getElementById('aInput'),n=inp.value.trim();
+  if(!n||allPeople().includes(n))return;
+  ahmads.push(n);inp.value='';renderAll();
+}
+function removeWorker(n){workers=workers.filter(w=>w!==n);renderAll();}
+function removeLate(n){lateWorkers=lateWorkers.filter(w=>w!==n);renderAll();}
+function removeUntil19(n){until19=until19.filter(w=>w!==n);renderAll();}
+function removeUntil21(n){until21=until21.filter(w=>w!==n);renderAll();}
+function removeAhmad(n){ahmads=ahmads.filter(w=>w!==n);renderAll();}
+
+function renderTags(){
+  document.getElementById('workerTags').innerHTML=workers.map(w=>`<span class="tag">${w}<button onclick="removeWorker('${w}')">✕</button></span>`).join('');
+  document.getElementById('lateTags').innerHTML=lateWorkers.map(w=>`<span class="tag late-tag">${w}<button onclick="removeLate('${w}')">✕</button></span>`).join('');
+  document.getElementById('until19Tags').innerHTML=until19.map(w=>`<span class="tag until19-tag">${w}<button onclick="removeUntil19('${w}')">✕</button></span>`).join('');
+  document.getElementById('until21Tags').innerHTML=until21.map(w=>`<span class="tag until21-tag">${w}<button onclick="removeUntil21('${w}')">✕</button></span>`).join('');
+  document.getElementById('ahmadTags').innerHTML=ahmads.map(a=>`<span class="tag">${a}<button onclick="removeAhmad('${a}')">✕</button></span>`).join('');
+}
+function toggleOpt(k){opts[k]=!opts[k];document.getElementById('tog-'+k).classList.toggle('on',opts[k]);renderAll();}
+
+function switchTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(i===0&&t==='morning')||(i===1&&t==='afternoon')));
+  document.getElementById('panel-morning').classList.toggle('active',t==='morning');
+  document.getElementById('panel-afternoon').classList.toggle('active',t==='afternoon');
+  document.getElementById('until21-section').style.display=t==='afternoon'?'block':'none';
+}
+
+function setE28(val){
+  e28Close=val;
+  ['e28-18','e28-21','e28-open'].forEach(id=>document.getElementById(id).classList.remove('sel'));
+  document.getElementById({18:'e28-18',21:'e28-21',0:'e28-open'}[val]).classList.add('sel');
+  renderStTable('morning');renderStTable('afternoon');
+}
+
+function renderStTable(shift){
+  const el=document.getElementById('st-'+shift);if(!el)return;
+  const slots=shift==='morning'?MST:AST;
+  const pfx=shift==='morning'?'stm':'sta';
+  const rows=getStations();
+
+  // בנה כותרות
+  let h=`<table><thead><tr><th style="min-width:90px">עמדה</th>${slots.map(s=>`<th>${s}</th>`).join('')}</tr></thead><tbody>`;
+
+  for(let ri=0;ri<rows.length;ri++){
+    const r=rows[ri];
+    h+=`<tr><td class="row-label">${r}</td>`;
+    for(const s of slots){
+      if(isE28Closed(r,s,shift)){
+        h+=`<td class="cell-closed">סגור</td>`;
+        continue;
+      }
+      const avail=availableForStSlot(s,shift);
+      const slotH=slotStart(s);
+      // האם זה סלוט שצריך מיזוג (צהריים, 19+, 2 עובדים בדיוק)
+      const isMerge=(shift==='afternoon'&&slotH>=19);
+
+      // תחנות 19-23: כשמיזוג — rowspan=2, דלג על עליונות בהמשך
+      if(isMerge&&r==='תחנות 19-23'){
+        const wo=['—',...avail].map(o=>o);
+        const id=pfx+'_'+safeId(r)+'_'+safeId(s);
+        // גם עליונות מקבלת אותו ID לסנכרון
+        const id2=pfx+'_'+safeId('עליונות 24-28')+'_'+safeId(s);
+        h+=`<td class="cell" rowspan="2" style="vertical-align:middle;border-bottom:0.5px solid #e0e0e0">
+          <select class="cell-select" id="${id}" onchange="
+            var v=this.value;
+            var el2=document.getElementById('${id2}');
+            if(el2)el2.value=v;
+            validateSt('${pfx}')
+          ">${wo.map((o,idx)=>`<option value="${['—',...avail][idx]}">${o}</option>`).join('')}</select>
+          <input type="hidden" id="${id2}" value=""/>
+        </td>`;
+        continue;
+      }
+
+      // עליונות 24-28: כשמיזוג — דלג (כבר כלול ב-rowspan של תחנות)
+      if(isMerge&&r==='עליונות 24-28'){
+        continue;
+      }
+
+      // תא רגיל
+      const wo=['—',...avail].map((o,idx)=>{
+        const orig=['—',...avail][idx];
+        if(lateWorkers.includes(orig)&&slotH===17) return orig+' (עד 18:00)';
+        return o;
+      });
+      const id=pfx+'_'+safeId(r)+'_'+safeId(s);
+      h+=`<td class="cell"><select class="cell-select" id="${id}" onchange="validateSt('${pfx}')">${wo.map((o,idx)=>`<option value="${['—',...avail][idx]}">${o}</option>`).join('')}</select></td>`;
+    }
+    h+='</tr>';
+  }
+  h+='</tbody></table>';el.innerHTML=h;
+}
+
+function renderScans(shift){
+  const slots=shift==='morning'?MSC:ASC;
+  const c=document.getElementById('scans-'+shift);if(!c)return;
+  let html='';
+  for(let i=0;i<3;i++){
+    const floors=scanFloors[shift][i];
+    const assigns=scanAssign[shift][i]||[];
+    const avail=availableForScan(shift,i);
+    const wo=['—',...avail];
+    html+=`<div class="scan-block">
+      <div class="scan-block-header">${slots[i]}</div>
+      <div class="scan-header-row">
+        <div class="scan-hdr-floor">קומה</div>
+        <div class="scan-hdr-worker">עובד</div>
+        <div class="scan-hdr-rm"></div>
+      </div>`;
+    for(let f=0;f<floors.length;f++){
+      const val=assigns[f]||'—';
+      const fv=floors[f]||'';
+      html+=`<div class="scan-row">
+        <div class="sc-floor-cell">
+          <span onclick="editFloor(this)">${fv||'&nbsp;'}</span>
+          <input type="text" value="${fv}" onblur="saveFloor(this,'${shift}',${i},${f})" onkeydown="if(event.key==='Enter')this.blur()"/>
+        </div>
+        <div class="sc-worker-cell"><select class="sc-select" onchange="setAssign('${shift}',${i},${f},this.value)">${wo.map(o=>`<option${o===val?' selected':''}>${o}</option>`).join('')}</select></div>
+        <div class="sc-rm-cell"><button class="sc-rm-btn" onclick="removeFloor('${shift}',${i},${f})">×</button></div>
+      </div>`;
+    }
+    html+=`<div class="scan-add-row"><button class="scan-add-btn" onclick="addFloor('${shift}',${i})">+ קומה</button></div></div>`;
+  }
+  c.innerHTML=html;
+}
+
+function editFloor(span){
+  span.style.display='none';
+  const inp=span.nextElementSibling;
+  inp.style.display='block';inp.focus();inp.select();
+}
+function saveFloor(inp,shift,si,fi){
+  const val=inp.value.trim();
+  scanFloors[shift][si][fi]=val;
+  const span=inp.previousElementSibling;
+  span.textContent=val||'\u00a0';
+  inp.style.display='none';span.style.display='block';
+}
+function setAssign(shift,si,fi,val){
+  if(!scanAssign[shift][si])scanAssign[shift][si]=[];
+  scanAssign[shift][si][fi]=val==='—'?'':val;
+  validateScan(shift,si);
+}
+function addFloor(shift,si){
+  scanFloors[shift][si].push('');
+  if(!scanAssign[shift][si])scanAssign[shift][si]=[];
+  scanAssign[shift][si].push('');
+  renderScans(shift);
+}
+function removeFloor(shift,si,fi){
+  scanFloors[shift][si].splice(fi,1);
+  if(scanAssign[shift][si])scanAssign[shift][si].splice(fi,1);
+  renderScans(shift);
+}
+function renderAll(){
+  renderTags();
+  renderStTable('morning');renderStTable('afternoon');
+  renderScans('morning');renderScans('afternoon');
+}
+
+function smartSt(shift){
+  const slots=shift==='morning'?MST:AST;
+  const pfx=shift==='morning'?'stm':'sta';
+  const rows=getStations();
+  const done={};rows.forEach(r=>done[r]=new Set());
+  const cnt={};allPeople().forEach(w=>cnt[w]=0);
+  for(const slot of slots){
+    const avail=availableForStSlot(slot,shift);
+    const slotH=slotStart(slot);
+    const isMerge=(shift==='afternoon'&&slotH>=19);
+    const usedThisSlot=new Set();
+    // שורות לשיבוץ: כשממזגים, דלג על עליונות (תתעדכן אוטומטית מתחנות)
+    const rowsToAssign=rows.filter(r=>!(isMerge&&r==='עליונות 24-28'));
+    for(const row of [...rowsToAssign].sort(()=>Math.random()-0.5)){
+      if(isE28Closed(row,slot,shift))continue;
+      let c=avail.filter(w=>!done[row].has(w)&&!usedThisSlot.has(w));
+      if(!c.length)c=avail.filter(w=>!usedThisSlot.has(w));
+      if(!c.length)continue;
+      c.sort((a,b)=>(cnt[a]||0)-(cnt[b]||0));
+      const ch=c[0];
+      const el=document.getElementById(pfx+'_'+safeId(row)+'_'+safeId(slot));
+      if(el){
+        el.value=ch;
+        // אם זו שורת תחנות ומיזוג פעיל — סנכרן עליונות
+        if(isMerge&&row==='תחנות 19-23'){
+          const el2=document.getElementById(pfx+'_'+safeId('עליונות 24-28')+'_'+safeId(slot));
+          if(el2) el2.value=ch;
+        }
+      }
+      done[row].add(ch);
+      if(isMerge&&row==='תחנות 19-23') done['עליונות 24-28']=(done['עליונות 24-28']||new Set()).add(ch);
+      usedThisSlot.add(ch);
+      cnt[ch]=(cnt[ch]||0)+1;
+    }
+  }
+}
+function smartScan(shift){
+  const done={};const cnt={};allPeople().forEach(w=>cnt[w]=0);
+  for(let i=0;i<3;i++){
+    const floors=scanFloors[shift][i];
+    const avail=availableForScan(shift,i);
+    if(!scanAssign[shift][i])scanAssign[shift][i]=[];
+    const used=new Set();
+    for(let f=0;f<floors.length;f++){
+      const fl=floors[f]||f;
+      if(!done[fl])done[fl]=new Set();
+      let c=avail.filter(w=>!done[fl].has(w)&&!used.has(w));
+      if(!c.length)c=avail.filter(w=>!used.has(w));
+      if(!c.length)continue;
+      c.sort((a,b)=>(cnt[a]||0)-(cnt[b]||0));
+      const ch=c[0];
+      scanAssign[shift][i][f]=ch;
+      done[fl].add(ch);used.add(ch);cnt[ch]=(cnt[ch]||0)+1;
+    }
+  }
+  renderScans(shift);
+}
+function autoFill(){
+  if(!workers.length&&!lateWorkers.length&&!until19.length&&!until21.length&&!ahmads.length){alert('יש להוסיף עובדים');return;}
+  const sh=curTab==='morning'?'morning':'afternoon';
+  smartSt(sh);smartScan(sh);
+  validateSt(sh==='morning'?'stm':'sta');
+  [0,1,2].forEach(i=>validateScan(sh,i));
+  showSummary();
+}
+function validateSt(pfx){
+  document.querySelectorAll(`[id^="${pfx}_"]`).forEach(s=>s.classList.remove('repeat'));
+  const byRow={};
+  document.querySelectorAll(`[id^="${pfx}_"]`).forEach(s=>{
+    const k=s.id.replace(pfx+'_','').split('_').slice(0,-2).join('_');
+    if(!byRow[k])byRow[k]=[];byRow[k].push(s);
+  });
+  for(const r of Object.values(byRow)){
+    const seen={};
+    for(const s of r){const v=s.value;if(v==='—')continue;if(seen[v]){s.classList.add('repeat');seen[v].classList.add('repeat');}else seen[v]=s;}
+  }
+}
+function validateScan(shift,si){
+  const blocks=document.querySelectorAll(`#scans-${shift} .scan-block`);
+  if(!blocks[si])return;
+  const sels=blocks[si].querySelectorAll('.sc-select');
+  const seen={};
+  sels.forEach(s=>{s.classList.remove('repeat');const v=s.value;if(v==='—')return;if(seen[v]){s.classList.add('repeat');seen[v].classList.add('repeat');}else seen[v]=s;});
+}
+function clearAll(){
+  document.querySelectorAll('.cell-select').forEach(s=>s.value='—');
+  scanAssign={morning:[[],[],[]],afternoon:[[],[],[]]};
+  renderScans('morning');renderScans('afternoon');
+  document.getElementById('summary').classList.add('hidden');
+}
+function showSummary(){
+  const cnt={};allPeople().forEach(w=>cnt[w]=0);
+  document.querySelectorAll('.cell-select').forEach(s=>{if(s.value!=='—'&&cnt[s.value]!==undefined)cnt[s.value]++;});
+  ['morning','afternoon'].forEach(sh=>[0,1,2].forEach(i=>(scanAssign[sh][i]||[]).forEach(w=>{if(w&&cnt[w]!==undefined)cnt[w]++;})));
+  const sumEl=document.getElementById('summary');sumEl.classList.remove('hidden');
+  const parts=[
+    ...workers.map(w=>`${w}: ${cnt[w]}`),
+    ...lateWorkers.map(w=>`${w}(09-18): ${cnt[w]}`),
+    ...until19.map(w=>`${w}(עד19): ${cnt[w]}`),
+    ...until21.map(w=>`${w}(עד21): ${cnt[w]}`),
+    ...ahmads.map(w=>`${w}(אחמש): ${cnt[w]}`)
+  ];
+  sumEl.innerHTML='<strong>סיכום:</strong> '+parts.join(' · ')+' תורנויות<br><small style="color:#c0392b">■ אדום = חזרה על אותה עמדה</small>';
+}
+renderAll();
+</script>
+</body>
+</html>
